@@ -32,6 +32,10 @@ client.on('ready', () => {
 			},
 		],
 	});
+	commands.create({
+		name: 'top_players',
+		description: 'shows top 10 players',
+	});
 });
 
 client.on('interactionCreate', async (interaction) => {
@@ -49,6 +53,54 @@ client.on('interactionCreate', async (interaction) => {
 				{ validateStatus: false }
 			);
 			
+			if (data?.players) {
+				const embeds = [];
+				data.players.forEach(
+					({ screen_name, avatar, rank, score, country }) => {
+						embeds.push({
+							title: screen_name,
+							image: {
+								url: avatar,
+							},
+							fields: [
+								{
+									name: 'Rank',
+									value: rank,
+								},
+								{
+									name: 'Points',
+									value: score,
+								},
+								{
+									name: 'Country',
+									value: country,
+								},
+							],
+						});
+					}
+				);
+				interaction.editReply({
+					embeds,
+				});
+			} else if (data && data.status !== 200) {
+				interaction.editReply({
+					content: data.message,
+				});
+			} else {
+				interaction.editReply({
+					content: 'No results found',
+				});
+			}
+		}
+		if (commandName === 'top_players') {
+
+			await interaction.deferReply();
+
+			const { data } = await axios.get(
+				'https://5m8926z2t3.execute-api.us-east-1.amazonaws.com/api/top_players',
+				{ validateStatus: false }
+			);
+
 			if (data?.players) {
 				const embeds = [];
 				data.players.forEach(
